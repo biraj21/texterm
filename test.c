@@ -1,5 +1,9 @@
-// Program to print Fibonacci numbers
+// program to print prime numbers
+#include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
+
+bool is_prime(int n);
 
 int main()
 {
@@ -7,15 +11,23 @@ int main()
 	printf("Enter a number: ");
 	scanf("%d", &n);
 
-	int a = 0, b = 1;
-	for (int i = 0; i < n; ++i)
+	for (int i = 2; i <= n; ++i)
 	{
-		printf("%d ", a);
-		int c = a + b;
-		a = b;
-		b = c;
+		if (is_prime(i))
+			printf("%d ", i);
 	}
 
 	putchar('\n');
 	return 0;
+}
+
+bool is_prime(int n)
+{
+	for (int i = 2, s = sqrt(n); i <= s; ++i)
+	{
+		if (n % i == 0)
+			return false;
+	}
+
+	return n > 1;
 }

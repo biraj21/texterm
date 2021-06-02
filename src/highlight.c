@@ -9,7 +9,7 @@
 
 typedef unsigned char uchar;
 
-#define is_separator(c) (isspace(c) || c == '\0' || strchr(",.=+-/*%><!&|~()[];", c) != NULL)
+#define is_separator(c) (isspace(c) || c == '\0' || strchr(",.=+-/*%><!&|~()[]{}:;", c) != NULL)
 
 extern Editor e;
 
@@ -181,11 +181,23 @@ int syntax_update(EditorRow *row)
                 if (is_kw2)
                     --kwlen;
 
-                if (strncmp(kw, &row->render[i], kwlen) == 0 && is_separator(row->render[i + kwlen]))
+                if (e.syntax->flags & HIGHLIGHT_IGNORE_CASE)
                 {
-                    memset(&row->hl[i], (is_kw2) ? HL_KEYWORD2 : HL_KEYWORD1, kwlen);
-                    i += kwlen - 1;
-                    break;
+                    if (strncasecmp(kw, &row->render[i], kwlen) == 0 && is_separator(row->render[i + kwlen]))
+                    {
+                        memset(&row->hl[i], (is_kw2) ? HL_KEYWORD2 : HL_KEYWORD1, kwlen);
+                        i += kwlen - 1;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (strncmp(kw, &row->render[i], kwlen) == 0 && is_separator(row->render[i + kwlen]))
+                    {
+                        memset(&row->hl[i], (is_kw2) ? HL_KEYWORD2 : HL_KEYWORD1, kwlen);
+                        i += kwlen - 1;
+                        break;
+                    }
                 }
             }
 

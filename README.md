@@ -1,11 +1,21 @@
 # Texterm Text Editor
-A very minimal & simple text editor written in C with only Standard C Library.
+A very minimal & simple text editor written in C with only Standard Library.
 
 ![Screenshot](./img/test_c_ss.png)
 
 <br>
 
-As of now, it only supports syntax highlighting for C & JavaScript. It also lacks common features like undo/redo, text replace, etc.
+Syntax highlighting supported for
+* C
+* JavaScript
+* Python
+* SQL
+
+## Planned Features
+* Undo & redo
+* Text replace
+* Colored bracket pair
+* Syntax highlightng for other languages
 
 <b>Learn to build your own text editor:</b> https://viewsourcecode.org/snaptoken/kilo/
 

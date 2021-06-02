@@ -26,6 +26,7 @@ enum Highlight
     HL_PREPROC,
     HL_KEYWORD1,
     HL_KEYWORD2,
+    HL_FUNC,
 
     HL_MATCH,     // search results highlighting
     HL_NON_PRINT, // for non printable chars
@@ -36,6 +37,8 @@ enum SyntaxFlags
     HIGHLIGHT_NUMBERS = 1,
     HIGHLIGHT_CHARS = 1 << 1,
     HIGHLIGHT_C_PREPROCS = 1 << 2,
+    HIGHLIGHT_IGNORE_CASE = 1 << 3,
+    HIGHLIGHT_FUNCTIONS = 1 << 4
 };
 
 int select_syntax_hl(const char *filename);
