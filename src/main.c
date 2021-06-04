@@ -34,6 +34,7 @@ void editor_open(const char *filename);
 void free_memory();
 
 Editor e;
+bool show_editor_cursor = true;
 // FILE *debug = NULL;
 
 int main(int argc, const char *argv[])
@@ -238,7 +239,6 @@ void editor_scroll()
 
 void editor_draw_rows(StringBuffer *sbptr)
 {
-    bool hl_on = false; // is highlight on
     for (int y = 0; y < e.winrows; ++y)
     {
         int iy = y + e.rowoff, textlen = 0;
@@ -251,7 +251,8 @@ void editor_draw_rows(StringBuffer *sbptr)
             if (textlen > 0)
             {
                 highlight(&e.rows[iy], e.coloff, textlen, sbptr);
-                hl_on = true;
+                if (e.rows[iy].render[e.coloff + textlen - 1] != HL_DEFAULT)
+                    strb_append(sbptr, "\x1b[48;2;17;17;17m\x1b[39m", 21);
             }
         }
         else if (e.numrows == 0 && y == e.winrows / 2 - 1)
@@ -284,12 +285,6 @@ void editor_draw_rows(StringBuffer *sbptr)
         else
             strb_append(sbptr, "~", 1);
 
-        if (hl_on)
-        {
-            strb_append(sbptr, "\x1b[39;49m", 8);
-            hl_on = false;
-        }
-
         strb_append(sbptr, "\x1b[K", 3);
         strb_append(sbptr, "\r\n", 2);
     }
@@ -297,7 +292,7 @@ void editor_draw_rows(StringBuffer *sbptr)
 
 void editor_status_bar(StringBuffer *sbptr)
 {
-    strb_append(sbptr, "\x1b[7m", 4);
+    strb_append(sbptr, "\x1b[48;2;221;221;221m\x1b[38;2;0;0;0m", 32);
 
     int namelen = 10;
     if (e.filename == NULL)
@@ -336,7 +331,11 @@ void editor_set_message(char *msg, ...)
 
 void editor_message_bar(StringBuffer *sbptr)
 {
-    strb_append(sbptr, "\x1b[K", 3);
+    char pos[16];
+    snprintf(pos, sizeof(pos), "\x1b[%d;1H", e.winrows + 2);
+
+    strb_append(sbptr, pos, strlen(pos));
+    strb_append(sbptr, "\x1b[2K", 4);
 
     int msglen = strlen(e.msg);
     if (msglen > e.wincols)
@@ -351,6 +350,7 @@ void editor_refresh_screen()
     editor_scroll();
 
     StringBuffer strb = STRBUF_INIT;
+    strb_append(&strb, "\x1b[48;2;17;17;17m", 16);
     strb_append(&strb, "\x1b[?25l\x1b[H", 9);
     editor_draw_rows(&strb);
     editor_status_bar(&strb);
@@ -360,7 +360,10 @@ void editor_refresh_screen()
     snprintf(curpos, sizeof(curpos), "\x1b[%d;%dH", e.cy - e.rowoff + 1, e.rx - e.coloff + 1);
 
     strb_append(&strb, curpos, strlen(curpos));
-    strb_append(&strb, "\x1b[?25h", 6);
+
+    if (show_editor_cursor)
+        strb_append(&strb, "\x1b[?25h", 6);
+
     write(STDOUT_FILENO, strb.str, strb.len);
     strb_free(&strb);
 }
@@ -525,16 +528,20 @@ char *editor_prompt(char *prompt, void (*callback)(char *, int))
     if (input == NULL)
         die("editor_prompt");
 
+    show_editor_cursor = false;
+
     size_t inputlen = 0;
     input[0] = '\0';
 
     while (1)
     {
-        char user_msg[strlen(prompt) + 10];
-        sprintf(user_msg, "%s\x1b[5m|\x1b[m", prompt);
+        editor_set_message(prompt, input);
 
-        editor_set_message(user_msg, input);
-        editor_refresh_screen();
+        StringBuffer strb = STRBUF_INIT;
+        strb_append(&strb, "\x1b[?25h", 6);
+        editor_message_bar(&strb);
+        write(STDOUT_FILENO, strb.str, strb.len);
+        strb_free(&strb);
 
         int c = read_key();
         if (c == ENTER && inputlen > 0)
@@ -583,6 +590,7 @@ char *editor_prompt(char *prompt, void (*callback)(char *, int))
     }
 
     editor_set_message("");
+    show_editor_cursor = true;
     return input;
 }
 
@@ -631,6 +639,7 @@ void editor_find_callback(char *query, int key)
             e.cx = match - text;
 
             highlight_match_set(&e.rows[current], row_cx_to_rx(&e.rows[current], e.cx), strlen(query));
+            editor_refresh_screen();
             return;
         }
     }
@@ -652,15 +661,20 @@ void editor_find()
 void editor_goto_line()
 {
     char *numstr = editor_prompt("Goto line: %s", NULL);
-    int n = atoi(numstr);
-    if (n < 1 || n > e.numrows)
+    if (numstr == NULL)
+        return;
+
+    int y = atoi(numstr);
+    free(numstr);
+    if (y < 1 || y > e.numrows)
         return;
 
     e.cx = 0;
-    e.cy = n - 1;
-    e.rowoff = n;
 
-    free(numstr);
+    // if (y - 1 > e.rowoff)
+    //     e.rowoff = y;
+
+    e.cy = y - 1;
 }
 
 /***  FILE I/O  ***/

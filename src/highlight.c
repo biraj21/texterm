@@ -48,6 +48,7 @@ int syntax_update(EditorRow *row)
 {
     if (row->rlen > row->hlen)
     {
+        row->hlen = row->rlen;
         uchar *new_hl = realloc(row->hl, row->rlen);
         if (new_hl == NULL)
             return -1;
@@ -223,6 +224,33 @@ int syntax_update(EditorRow *row)
                     {
                         memset(&row->hl[i], HL_PREPROC, preproc_len + 1);
                         i += preproc_len;
+
+                        if (strcmp(preproc, "include") == 0)
+                        {
+                            char open_header = 0;
+                            for (int s = i + 1; s < row->rlen; ++s)
+                            {
+                                if (isspace(row->render[s]))
+                                    continue;
+                                else if (open_header)
+                                {
+                                    row->hl[s] = HL_HEADER;
+                                    if ((open_header == '"' && row->render[s] == '"') || (open_header == '<' && row->render[s] == '>'))
+                                    {
+                                        open_header = 0;
+                                        break;
+                                    }
+                                }
+                                else if (row->render[s] == '"' || row->render[s] == '<')
+                                {
+                                    open_header = row->render[s];
+                                    row->hl[s] = HL_HEADER;
+                                }
+                                else
+                                    break;
+                            }
+                        }
+
                         break;
                     }
                 }
@@ -252,6 +280,7 @@ int get_color(uchar hl)
 {
     switch (hl)
     {
+    case HL_HEADER:
     case HL_CHAR:
         return 214;
     case HL_ESC_SEQ:
@@ -266,9 +295,8 @@ int get_color(uchar hl)
         return 207;
     case HL_KEYWORD2:
         return 69;
-
-    // case HL_MATCH:
-    // case HL_NON_PRINT:
+    case HL_NON_PRINT:
+        return 32;
     default:
         return -1;
     }
@@ -284,11 +312,13 @@ void highlight(EditorRow *row, int index, int len, StringBuffer *sbptr)
         {
             curr_hl = hl;
 
-            char color_seq[16];
+            char color_seq[32];
             if (hl == HL_DEFAULT)
-                snprintf(color_seq, sizeof(color_seq), "\x1b[39m");
+                snprintf(color_seq, sizeof(color_seq), "\x1b[48;2;17;17;17m\x1b[39m");
+            else if (hl == HL_MATCH)
+                snprintf(color_seq, sizeof(color_seq), "\x1b[48;5;173m\x1b[38;2;0;0;0m");
             else
-                snprintf(color_seq, sizeof(color_seq), "\x1b[38;5;%dm", get_color(hl));
+                snprintf(color_seq, sizeof(color_seq), "\x1b[48;2;17;17;17m\x1b[38;5;%dm", get_color(hl));
 
             strb_append(sbptr, color_seq, strlen(color_seq));
         }

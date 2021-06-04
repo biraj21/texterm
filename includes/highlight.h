@@ -19,6 +19,7 @@ enum Highlight
 {
     // code highlighting
     HL_DEFAULT = 128,
+    HL_HEADER,
     HL_CHAR,
     HL_ESC_SEQ,
     HL_COMMENT,

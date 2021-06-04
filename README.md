@@ -1,11 +1,11 @@
 # Texterm Text Editor
 A very minimal & simple text editor written in C with only Standard Library.
 
-![Screenshot](./img/test_c_ss.png)
+![Screenshot](./img/ss.png)
 
 <br>
 
-Syntax highlighting supported for
+## Syntax highlighting supported for
 * C
 * JavaScript
 * Python
@@ -17,14 +17,14 @@ Syntax highlighting supported for
 * Colored bracket pair
 * Syntax highlightng for other languages
 
+<br>
+
 <b>Learn to build your own text editor:</b> https://viewsourcecode.org/snaptoken/kilo/
 
 <br>
 
 ## Build
 ``make texterm``
-
-<br>
 
 ## Usage
 ``texterm <file>``
