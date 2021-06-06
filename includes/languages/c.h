@@ -3,12 +3,15 @@
 
 #include <stddef.h>
 
-char *c_exts[] = {".c", ".h", ".cpp", NULL};
+char *c_exts[] = {".c", ".h", NULL};
+char *cpp_exts[] = {".hpp", ".hxx", ".cpp", ".cxx", NULL};
 
 char *c_keywords[] = {
-    "auto", "break", "case", "continue", "do", "default", "else",
-    "extern", "for", "if", "goto", "register", "return", "sizeof",
-    "switch", "volatile", "while", "restrict",
+    "auto", "break", "case", "continue",
+    "do", "default", "else", "extern",
+    "for", "if", "goto", "register",
+    "return", "sizeof", "switch",
+    "volatile", "while", "restrict",
 
     /* C11 */
     "_Alignas",
@@ -24,7 +27,33 @@ char *c_keywords[] = {
     "_Complex|",
     "_Imaginary|",
 
+
+    // types, variables & functions related
+    "char|", "const|", "double|", "enum|", "float| ", "int|", "long|",
+    "short|", "signed|", "static|", "struct|", "typedef|", "union|", "unsigned|",
+    "void|", NULL};
+
+char *cpp_keywords[] = {
     /* C++ */
+    "auto",
+    "break",
+    "case",
+    "continue",
+    "do",
+    "default",
+    "else",
+    "extern",
+    "for",
+    "if",
+    "goto",
+    "register",
+    "return",
+    "sizeof",
+    "switch",
+    "volatile",
+    "while",
+    "restrict",
+
     "and",
     "and_eq",
     "asm",
@@ -89,21 +118,19 @@ char *c_keywords[] = {
     "module",
     "requires",
 
-    // types, variables & functions related
-    "char|", "const|", "double|", "enum|", "float| ", "int|", "long|",
+    "bool|", "char|", "const|", "double|", "enum|", "float| ", "int|", "long|",
     "short|", "signed|", "static|", "struct|", "typedef|", "union|", "unsigned|",
     "void|", NULL};
 
 char *c_preprocs[] = {
     "define", "defined", "elif", "else", "endif", "error", "if", "ifdef",
-    "ifndef", "include", "undef", "pragma",
+    "ifndef", "include", "undef", "pragma", NULL};
 
+char *cpp_preprocs[] = {
     /* C++17 */
     "__has_include",
 
     /* C++20 */
-    "__has_cpp_attribute",
-
-    NULL};
+    "__has_cpp_attribute", NULL};
 
 #endif
