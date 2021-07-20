@@ -30,7 +30,7 @@ void editor_init();
 void editor_set_message(char *msg, ...);
 void editor_refresh_screen();
 void editor_process_key();
-void editor_open(const char *filename);
+int editor_open(const char *filename);
 void free_memory();
 
 Editor e;
@@ -679,15 +679,15 @@ void editor_goto_line()
 
 /***  FILE I/O  ***/
 
-void editor_open(const char *filename)
+int editor_open(const char *filename)
 {
     FILE *fp = fopen(filename, "r");
     if (fp == NULL)
-        die("fopen");
+        return 0;
 
     e.filename = strdup(filename);
     if (select_syntax_hl(filename) == -1)
-        die("selct_syntax_hl");
+        die("select_syntax_hl");
 
     char *line = NULL;
     size_t linecap = 0;
@@ -702,6 +702,7 @@ void editor_open(const char *filename)
 
     free(line);
     fclose(fp);
+    return 1;
 }
 
 void editor_save_file()
@@ -745,6 +746,16 @@ void editor_save_file()
 
     free(str);
     editor_set_message("Can't save file! %s", strerror(errno));
+}
+
+void editor_open_file()
+{
+    char const *filename = editor_prompt("File to open: %s", NULL);
+    if (filename)
+    {
+        if (editor_open(filename) == 0)
+            editor_set_message("Could not open file '%s'!", filename);
+    }
 }
 
 /***  EDITOR INPUT  ***/
@@ -819,6 +830,10 @@ void editor_process_key()
 
     case CTRL_KEY('s'):
         editor_save_file();
+        break;
+
+    case CTRL_KEY('o'):
+        editor_open_file();
         break;
 
     case CTRL_KEY('f'):
