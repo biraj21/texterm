@@ -27,11 +27,15 @@ _**Note**: This project is undergoing refactoring at the moment._
 
 ## Build
 
-`make texterm`
+```
+make texterm
+```
 
 ## Usage
 
-`texterm [FILE]`
+```
+texterm [FILE]
+```
 
 ## Acknowledgement
 
