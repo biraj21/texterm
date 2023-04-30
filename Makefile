@@ -1,26 +1,37 @@
-CC = gcc
-FLAGS = -g -Wall -Werror
-LANG_HEADERS = $(wildcard ./includes/languages/*.h)
-SRC_FILES = $(wildcard ./src/*.c)
-OBJ_FILES = $(patsubst ./src/%.c, ./obj/%.o, $(SRC_FILES))
+CC = cc
+FLAGS = -Wall -Werror -Wpedantic -Wextra
+SRC = src
+OBJ = obj
 BIN = texterm
+LANGUAGE_FILES = $(wildcard $(SRC)/languages/*.h)
+SRC_FILES = $(wildcard $(SRC)/*.[ch])
+OBJ_FILES = $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(wildcard $(SRC)/*.c))
 
-$(BIN): obj $(OBJ_FILES)
-	$(CC) $(FLAGS) $(OBJ_FILES) -o $@
+all: setup clean $(BIN)
 
-obj:
-	mkdir obj
+# set up the project by creating 'src' & 'obj' directories
+setup:
+	mkdir -p src obj
 
-obj/main.o: src/main.c
-	$(CC) $(FLAGS) -c $< -o $@
-
-obj/highlight.o: src/highlight.c includes/languages.h $(LANG_HEADERS)
-
-obj/%.o: src/%.c includes/%.h 
-	$(CC) $(FLAGS) -c $< -o $@
-
+# clean up by deleting binary & object files
 clean:
-	rm -f ./obj/* $(BIN) test
+	rm -f $(BIN) $(OBJ)/*.o sample
 
-test: test.c
-	$(CC) $(FLAGS) $^ -o $@
+# create binary by stitching object files
+$(BIN): $(OBJ_FILES)
+	$(CC) $(FLAGS) -o $@ $(OBJ_FILES)
+
+# compile main.c when any source file has changed
+$(OBJ)/main.o: $(SRC_FILES)
+	$(CC) $(FLAGS) -c -o $@ $(SRC)/main.c
+
+# compile highlight.c only when highlight.c or any language header files have changed
+$(OBJ)/highlight.o: $(SRC)/highlight.c $(LANGUAGE_FILES)
+	$(CC) $(FLAGS) -c -o $@ $(SRC)/highlight.c
+
+# compile any other file only when it or any header files have changed
+$(OBJ)/%.o: $(SRC)/%.c $(SRC)/%.h
+	$(CC) $(FLAGS) -c -o $@ $<
+
+debug: $(BIN)
+	valgrind --log-file=valgrind.log $(BIN)

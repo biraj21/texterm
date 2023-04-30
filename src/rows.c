@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
-#include "../includes/editor.h"
-#include "../includes/highlight.h"
-#include "../includes/rows.h"
+#include "editor.h"
+#include "highlight.h"
+#include "rows.h"
 
-extern Editor e;
+extern Editor editor;
 
 int row_cx_to_rx(EditorRow *row, int cx)
 {
@@ -12,7 +12,7 @@ int row_cx_to_rx(EditorRow *row, int cx)
     for (int i = 0; i < cx; ++i)
     {
         if (row->text[i] == '\t')
-            rx += e.tab_stop - rx % e.tab_stop;
+            rx += editor.tab_stop - rx % editor.tab_stop;
         else
             ++rx;
     }
@@ -23,13 +23,13 @@ int row_cx_to_rx(EditorRow *row, int cx)
 int row_update(EditorRow *row)
 {
     int tabs = 0;
-    for (int i = 0; i < row->len; ++i)
-    {
-        if (row->text[i] == '\t')
+    for (size_t i = 0; i < row->len; ++i) {
+        if (row->text[i] == '\t') {
             ++tabs;
+        }
     }
 
-    char *new_render = malloc(row->len + (e.tab_stop - 1) * tabs + 1);
+    char *new_render = malloc(row->len + (editor.tab_stop - 1) * tabs + 1);
     if (new_render == NULL)
         return -1;
 
@@ -37,11 +37,10 @@ int row_update(EditorRow *row)
     row->render = new_render;
 
     int index = 0;
-    for (int i = 0; i < row->len; ++i)
-    {
+    for (size_t i = 0; i < row->len; ++i) {
         if (row->text[i] == '\t')
         {
-            for (int x = index % e.tab_stop; x < e.tab_stop; ++x)
+            for (int x = index % editor.tab_stop; x < editor.tab_stop; ++x)
                 row->render[index++] = ' ';
         }
         else
@@ -54,9 +53,9 @@ int row_update(EditorRow *row)
     return syntax_update(row);
 }
 
-int row_insert_char(EditorRow *row, int at, char c)
+int row_insert_char(EditorRow *row, size_t at, char c)
 {
-    if (at < 0 || at > row->len)
+    if (at > row->len)
         return 0;
 
     char *new_str = realloc(row->text, row->len + 2);
@@ -71,9 +70,9 @@ int row_insert_char(EditorRow *row, int at, char c)
     return row_update(row);
 }
 
-int row_delete_char(EditorRow *row, int at)
+int row_delete_char(EditorRow *row, size_t at)
 {
-    if (at < 0 || at >= row->len)
+    if (at >= row->len)
         return 0;
 
     memmove(&row->text[at], &row->text[at + 1], row->len - at);
@@ -95,8 +94,7 @@ int row_append_string(EditorRow *row, char *str, size_t len)
     return row_update(row);
 }
 
-void free_row(EditorRow *row)
-{
+void free_row(EditorRow *row) {
     free(row->text);
     free(row->render);
     free(row->hl);

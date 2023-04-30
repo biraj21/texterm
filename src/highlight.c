@@ -3,15 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../includes/editor.h"
-#include "../includes/highlight.h"
-#include "../includes/languages.h"
-
-typedef unsigned char uchar;
+#include <sys/types.h>
+#include "editor.h"
+#include "highlight.h"
+#include "languages.h"
 
 #define is_separator(c) (isspace(c) || c == '\0' || strchr(",.=+-/*%><!&|~()[]{}:;", c) != NULL)
 
-extern Editor e;
+extern Editor editor;
 
 int select_syntax_hl(const char *filename)
 {
@@ -29,11 +28,11 @@ int select_syntax_hl(const char *filename)
         {
             if (strcmp(ext, syn->file_exts[j]) == 0)
             {
-                e.syntax = syn;
+                editor.syntax = syn;
 
-                for (int y = 0; y < e.numrows; ++y)
+                for (int y = 0; y < editor.numrows; ++y)
                 {
-                    if (syntax_update(&e.rows[y]) == -1)
+                    if (syntax_update(&editor.rows[y]) == -1)
                         return -1;
                 }
                 return 0;
@@ -49,7 +48,7 @@ int syntax_update(EditorRow *row)
     if (row->rlen > row->hlen)
     {
         row->hlen = row->rlen;
-        uchar *new_hl = realloc(row->hl, row->rlen);
+        char *new_hl = realloc(row->hl, row->rlen);
         if (new_hl == NULL)
             return -1;
 
@@ -60,7 +59,7 @@ int syntax_update(EditorRow *row)
 
     // we want to translate & highlight non-printable
     // characters even if the syntax is not selected
-    for (int i = 0; i < row->rlen; ++i)
+    for (size_t i = 0; i < row->rlen; ++i)
     {
         char c = row->render[i];
         if (c < 0)
@@ -75,24 +74,24 @@ int syntax_update(EditorRow *row)
         }
     }
 
-    if (e.syntax == NULL)
+    if (editor.syntax == NULL)
         return 0;
 
-    char *scs = e.syntax->sl_comment_start;
+    char *scs = editor.syntax->sl_comment_start;
     int scs_len = (scs != NULL) ? strlen(scs) : 0;
 
-    char *mcs = e.syntax->ml_comment_start;
+    char *mcs = editor.syntax->ml_comment_start;
     int mcs_len = (mcs != NULL) ? strlen(mcs) : 0;
 
-    char *mce = e.syntax->ml_comment_end;
+    char *mce = editor.syntax->ml_comment_end;
     int mce_len = (mce != NULL) ? strlen(mce) : 0;
 
-    char **keywords = e.syntax->keywords;
+    char **keywords = editor.syntax->keywords;
 
     bool prev_sep = true;
-    bool in_ml_comment = row->index > 0 && e.rows[row->index - 1].is_comment_open;
+    bool in_ml_comment = row->index > 0 && editor.rows[row->index - 1].is_comment_open;
     char open_char = 0;
-    for (int i = 0; i < row->rlen; ++i)
+    for (size_t i = 0; i < row->rlen; ++i)
     {
         // single line comment
         if (scs_len > 0 && !open_char && !in_ml_comment)
@@ -132,10 +131,10 @@ int syntax_update(EditorRow *row)
         }
 
         char c = row->render[i];
-        uchar prev_hl = (i > 0) ? row->hl[i - 1] : HL_DEFAULT;
+        char prev_hl = (i > 0) ? row->hl[i - 1] : HL_DEFAULT;
 
         // strings
-        if (e.syntax->flags & HIGHLIGHT_CHARS)
+        if (editor.syntax->flags & HIGHLIGHT_CHARS)
         {
             if (open_char)
             {
@@ -162,7 +161,7 @@ int syntax_update(EditorRow *row)
         }
 
         // numbers
-        if (e.syntax->flags & HIGHLIGHT_NUMBERS)
+        if (editor.syntax->flags & HIGHLIGHT_NUMBERS)
         {
             if ((isdigit(c) && (prev_sep || prev_hl == HL_NUMBER)) || (c == '.' && prev_hl == HL_NUMBER))
             {
@@ -182,7 +181,7 @@ int syntax_update(EditorRow *row)
                 if (is_kw2)
                     --kwlen;
 
-                if (e.syntax->flags & HIGHLIGHT_IGNORE_CASE)
+                if (editor.syntax->flags & HIGHLIGHT_IGNORE_CASE)
                 {
                     if (strncasecmp(kw, &row->render[i], kwlen) == 0 && is_separator(row->render[i + kwlen]))
                     {
@@ -211,7 +210,7 @@ int syntax_update(EditorRow *row)
             }
         }
 
-        if (e.syntax->flags & HIGHLIGHT_C_PREPROCS)
+        if (editor.syntax->flags & HIGHLIGHT_C_PREPROCS)
         {
             if ((i == 0 || isspace(row->render[i - 1])) && c == '#')
             {
@@ -228,7 +227,7 @@ int syntax_update(EditorRow *row)
                         if (strcmp(preproc, "include") == 0)
                         {
                             char open_header = 0;
-                            for (int s = i + 1; s < row->rlen; ++s)
+                            for (size_t s = i + 1; s < row->rlen; ++s)
                             {
                                 if (isspace(row->render[s]))
                                     continue;
@@ -270,13 +269,13 @@ int syntax_update(EditorRow *row)
 
     bool comment_state_changed = row->is_comment_open != in_ml_comment;
     row->is_comment_open = in_ml_comment;
-    if (comment_state_changed && row->index + 1 < e.numrows)
-        syntax_update(&e.rows[row->index + 1]);
+    if (comment_state_changed && row->index + 1 < editor.numrows)
+        syntax_update(&editor.rows[row->index + 1]);
 
     return 0;
 }
 
-int get_color(uchar hl)
+int get_color(char hl)
 {
     switch (hl)
     {
@@ -307,7 +306,7 @@ void highlight(EditorRow *row, int index, int len, StringBuffer *sbptr)
     char curr_hl = -1;
     for (int i = 0; i < len; ++i)
     {
-        uchar hl = row->hl[i];
+        char hl = row->hl[i];
         if (curr_hl != hl)
         {
             curr_hl = hl;
@@ -327,7 +326,7 @@ void highlight(EditorRow *row, int index, int len, StringBuffer *sbptr)
     }
 }
 
-static uchar *saved_hl = NULL;
+static char *saved_hl = NULL;
 static EditorRow *saved_hl_row = NULL;
 
 void highlight_match_set(EditorRow *row, int index, int len)

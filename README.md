@@ -1,56 +1,49 @@
 # Texterm Text Editor
-A very minimal & simple text editor written in C with only Standard Library.
+
+A simple, minimal & performant text editor written in C with only C's Standard Library.
 
 ![Screenshot](./img/ss.png)
 
-<br>
+_**Note**: This project is undergoing refactoring at the moment._
 
 ## Syntax highlighting supported for
-* C
-* JavaScript
-* Python
-* SQL
 
-## Planned Features
-* Undo & redo
-* Text replace
-* Colored bracket pair
-* Syntax highlightng for other languages
+- C/C++
+- JavaScript
+- Python
+- SQL
 
-<br>
+## Installation
 
-<b>Learn to build your own text editor:</b> https://viewsourcecode.org/snaptoken/kilo/
-
-<br>
+- Make sure that `gcc` & `make` are installed.
+- Make _install.sh_ file executable.
+  ```
+  chmod +x install.sh
+  ```
+- Execute the installation script.
+  ```
+  ./install.sh
+  ```
 
 ## Build
-``make texterm``
+
+`make texterm`
 
 ## Usage
-``texterm <file>``
 
-<br>
+`texterm [FILE]`
 
-# For those who want to read the code
-## Naming conventions used:
-* <b>variable names</b> - snake_case
-* <b>function names</b> - snake_case
-* <b>structs & enums</b> - CamelCase
+## Acknowledgement
 
-<br>
+This project is based on [Snaptoken's](https://github.com/snaptoken) _Build Your Own Text Editor_ [tutorial](https://viewsourcecode.org/snaptoken/kilo/). Thanks [Paige Ruten](https://github.com/paigeruten)!
 
-## Project's Structure
-<b>include directory</b> - contains header files
-* <b>editor.h</b> - declaration of type ``Editor``
-* <b>highlight.h</b> - declaration of ``SyntaxInfo`` type & prototypes for functions in <i>highlight.c</i>
-* <b>languages.h</b> - contains languages' extensions, keywords & stuff
-* <b>strbuf.h</b> - declaration of ``StringBuffer`` type & prototypes for functions in <i>strbuf.c</i>
-* <b>rows.h</b> - declaration of ``EditorRow`` type & prototypes for functions in <i>rows.c</i>
-* <b>winsize.h</b> - function prototype for ``get_win_size`` in <i>winsize.c</i>
+## Planned Features
 
-<b>src directory</b> - contains source files (.c)
-* <b>main.c</b> - main function, opening file, saving file, rendering ui, etc.
-* <b>highlight.c</b> - syntax higlighting stuff (where ``EditorRow's hl field`` is processed)
-* <b>strbuf.c</b> - functions for appending & freeing ``StringBuffer``
-* <b>rows.c</b> - row functions (insert/delete char, insert string, etc.)
-* <b>winsize.c</b> - for getting window's size
+- Undo & redo
+- Text replace
+- Colored bracket pair
+- Syntax highlightng for other languages
+
+## Contributing
+
+Read [contributing guidlines](./CONTRIBUTING.md).

@@ -1,11 +1,10 @@
 #ifndef HIGHLIGHT_H
 #define HIGHLIGHT_H
 
-#include "./rows.h"
-#include "./strbuf.h"
+#include "rows.h"
+#include "strbuf.h"
 
-typedef struct
-{
+typedef struct {
     char *file_type;
     char **file_exts; // file extensions
     char **keywords;
@@ -15,10 +14,9 @@ typedef struct
     int flags;              // for choosing what to highlight
 } SyntaxInfo;
 
-enum Highlight
-{
+enum Highlight {
     // code highlighting
-    HL_DEFAULT = 128,
+    HL_DEFAULT = -50,
     HL_HEADER,
     HL_CHAR,
     HL_ESC_SEQ,

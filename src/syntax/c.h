@@ -27,11 +27,11 @@ char *c_keywords[] = {
     "_Complex|",
     "_Imaginary|",
 
-
     // types, variables & functions related
-    "char|", "const|", "double|", "enum|", "float| ", "int|", "long|",
-    "short|", "signed|", "static|", "struct|", "typedef|", "union|", "unsigned|",
-    "void|", NULL};
+    "bool|", "char|", "const|", "double|", "enum|", "false|", "float| ", "int|",
+    "long|", "short|", "signed|", "static|", "struct|", "true|", "typedef|",
+    "union|", "unsigned|", "void|", NULL
+};
 
 char *cpp_keywords[] = {
     /* C++ */

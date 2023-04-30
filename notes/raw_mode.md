@@ -21,4 +21,9 @@ The terminal, by default, is in canonical or cooking mode, which means that it w
     * OLCUC - lowercase chars are translated to uppercase
 
 ## control flags (``c_cflag``)
-* CS8 - sets the character size to 8 bits
+* CS8 - a mask that sets the character size to 8 bits
+
+Read more about it in Linux manual with
+```
+man termios
+```

@@ -2,12 +2,12 @@
 #define LANGUAGES_H
 
 #include <stddef.h>
-#include "./highlight.h"
+#include "highlight.h"
 
-#include "./languages/c.h"
-#include "./languages/js.h"
-#include "./languages/py.h"
-#include "./languages/sql.h"
+#include "languages/c.h"
+#include "languages/js.h"
+#include "languages/py.h"
+#include "languages/sql.h"
 
 // Database of languages
 SyntaxInfo syntax_hl_db[] = {

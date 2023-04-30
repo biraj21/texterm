@@ -1,5 +1,4 @@
-.vscode
-notes
-obj
-test
-texterm
+/.vscode
+/obj
+/texterm
+/*.log
