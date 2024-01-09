@@ -4,10 +4,10 @@
 #include <stddef.h>
 #include "highlight.h"
 
-#include "languages/c.h"
-#include "languages/js.h"
-#include "languages/py.h"
-#include "languages/sql.h"
+#include "syntax/c.h"
+#include "syntax/js.h"
+#include "syntax/py.h"
+#include "syntax/sql.h"
 
 // Database of languages
 SyntaxInfo syntax_hl_db[] = {

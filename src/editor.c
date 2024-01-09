@@ -195,7 +195,12 @@ void editor_refresh_screen() {
     editor_status_bar(&strb);
     editor_message_bar(&strb);
 
-    char curpos[16];
+    int curpos_size_required = snprintf(NULL, 0, "\x1b[%d;%dH", editor.cy - editor.rowoff + 1, editor.rx - editor.coloff + 1) + 1;
+
+    /* TODO?: It is ideal for the corpus to be allocated dynamically. */
+        
+        char curpos[curpos_size_required];
+    
     snprintf(curpos, sizeof(curpos), "\x1b[%d;%dH", editor.cy - editor.rowoff + 1, editor.rx - editor.coloff + 1);
 
     strb_append(&strb, curpos, strlen(curpos));
